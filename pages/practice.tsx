@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { GetServerSideProps } from 'next';
 import axios from "axios";
-import Title from "../src/title.js";
+import Title from "../src/title";
+import Game from "../src/game";
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 //import { setConstantValue } from 'typescript';
@@ -18,73 +19,15 @@ type productProps = {
     'price': number
 }
 
-export default function Practice(props: productProps) {
-    const [entry, setEntry] = useState("");
-    const [show, setShow] = useState(false);
+export default function Practice(props: productProps): JSX.Element {
     const router = useRouter();
-
-    const clickEnter = function (): void {
-        if (entry !== "") {
-            setShow(true);
-        }
-    }
-    const handleChange = (event: React.ChangeEvent<HTMLElement>): void => {
-        const stringVal: string = (event.target as HTMLInputElement).value
-        let val: number = parseFloat(stringVal);
-        if (isNaN(val)) {
-            setEntry("");
-            return;
-        }
-        val = Math.max(val, 0);
-        const ind = stringVal.indexOf('.');
-        if (ind !== -1 && stringVal.length - ind > 3)
-            val = Math.trunc(val * 100) / 100;
-        setEntry(val.toString());
-    }
-    const renderResult = () => {
-        const guess: number = parseFloat(entry);
-        let points: number;
-        if (guess <= props.price) {
-            points = Math.round(Math.pow(guess / props.price, 2) * 100);
-            return (
-                <div className='answer'>
-                    <div>Actual Price:
-                        <span style={{ color: 'darkgreen' }}>{` $${props.price.toFixed(2)}`}</span>
-                    </div>
-                    <div>You got&nbsp;
-                        <span style={{ color: (points === 0 ? 'red' : "") }}>{points}</span>
-                        &nbsp;point{points === 1 ? "" : "s"}{points > 0 ? "!" : ""}</div>
-                </div>
-            )
-        }
-
-        else {
-            return (
-                <div className='answer'>
-                    <div>Actual Price:
-                        <span style={{ color: 'red' }}>{` $${props.price.toFixed(2)}`}</span>
-                    </div>
-                    <div>You went over!</div>
-                </div>
-            )
-        }
-    }
-
     return (
         <div className='top'>
-            <Title />
+            <Title scale={1}/>
             <Link href='/'>
-                <button className='backButton' style={{ fontSize: '18px' }}>Back to Home</button>
+                <button className='backButton'>Back to Home</button>
             </Link>
-            <div className='gameInterface'>
-                <img src={props.imageLink} />
-                <div>
-                    $<input type='number' className='priceInput' value={entry} disabled={show} required
-                        step='0.01' min='0' onChange={handleChange} />
-                    <button className='enterPrice' disabled={show} onClick={clickEnter}>Enter</button>
-                </div>
-            </div>
-            {show && renderResult()}
+            <Game imageLink={props.imageLink} price={props.price}/>
             <button className='reloadButton' onClick={router.reload}>Try another</button>
         </div>
     )

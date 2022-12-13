@@ -1,14 +1,14 @@
-import Title from "../src/title.js";
+import Title from "../src/title";
 import Link from 'next/link';
 
 export default function Home(){
     return (
         <div id='startPage' className='top'>
-            <Title/>
+            <Title scale={1.5}/>
             <div className='startButtons'>
-                <button>Play</button>
+                <button disabled>Rules</button>
                 <Link href='/practice'><button>Practice</button></Link>
-                <button>Rules</button>
+                <button disabled>Play</button>
             </div>
         </div>
     )
