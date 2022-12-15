@@ -24,7 +24,12 @@ export default function (props: productProps) {
                 props.addScore(calculatePoints());
         }
     }
-
+    const handleKey = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            clickEnter();
+        }
+    }
     const calculatePoints = (): number => {
         const guess: number = parseFloat(entry);
         if (guess <= props.price)
@@ -84,7 +89,7 @@ export default function (props: productProps) {
             <img src={props.imageLink} />
             <div>
                 $<input type='number' className='priceInput' value={entry} disabled={props.show} required
-                    step='0.01' min='0' placeholder="Price?" onChange={handleChange} />
+                    step='0.01' min='0' placeholder="Price?" onChange={handleChange} onKeyDown={handleKey}/>
                 <button className='enterPrice' disabled={props.show} onClick={clickEnter}>Enter</button>
             </div>
             {props.show && renderResult()}
