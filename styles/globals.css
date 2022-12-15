@@ -2,7 +2,8 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  background-color: #83d7f8;
 }
 
 .top {
@@ -30,12 +31,21 @@ h1 {
 }
 
 .startButtons button {
-  margin: 3px;
+  margin: 5px;
   width: 125px;
   font-size:25px;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
+#roundEntry {
+  font-size: 18px;
+  margin-top: 5px;
+}
+
+#roundEntry input{
+  font-size:18px;
+  max-width: 5ch;
+}
 
 * {
   box-sizing: border-box;

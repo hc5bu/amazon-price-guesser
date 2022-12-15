@@ -16,15 +16,15 @@ type amazonData = {
 type productProps = {
     'imageLink': string,
     'price': number,
-    'ASIN': string
+    'ASIN': string,
+    category? : string
 }
 
-export default function Practice({ productList }: { productList: Array<productProps> }): JSX.Element {
+export default function Play({ productList, rounds }: { productList: Array<productProps>, rounds:number }): JSX.Element {
     const [showAnswer, setShowAnswer] = useState(false);
     const [round, setRound] = useState(1);
     const [score, setScore] = useState(0);
     const router = useRouter();
-
     const addScore = (s: number): void => {
         setScore(s + score);
     }
@@ -34,7 +34,7 @@ export default function Practice({ productList }: { productList: Array<productPr
         setShowAnswer(false);
     }
 
-    if (round <= 10) {
+    if (round <= rounds) {
         return (
             <div className='top'>
                 <Title />
@@ -48,7 +48,7 @@ export default function Practice({ productList }: { productList: Array<productPr
                         </Link>
                     </div>
                     <div className='roundNum'>
-                        Round:<br />{round}/10
+                        Round:<br />{round}/{rounds}
                     </div>
                 </div>
 
@@ -56,7 +56,7 @@ export default function Practice({ productList }: { productList: Array<productPr
                     ASIN={productList[round - 1].ASIN} show={showAnswer} setShow={setShowAnswer} addScore={addScore} />
                 {showAnswer &&
                     <button className='nextButton' onClick={nextRound}>
-                        {round===10 ? "View Results" : "Next Product"}
+                        {round===rounds ? "View Results" : "Next Product"}
                     </button>
                 }
             </div>
@@ -68,7 +68,7 @@ export default function Practice({ productList }: { productList: Array<productPr
                 <Title scale={1.5} />
                 <div className='finalScore'>
                     <div>Your Final Score: <span style={{color:'blue'}}>{score}</span></div>
-                    <div>Average Score Per Round: <span style={{color:'darkblue'}}>{score/10}</span></div>
+                    <div>Average Score Per Round: <span style={{color:'darkblue'}}>{score/rounds}</span></div>
                 </div>
                 <button className='reloadButton' id='playAgain' onClick={router.reload}>Play Again</button>
             </div>
@@ -78,11 +78,59 @@ export default function Practice({ productList }: { productList: Array<productPr
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    let priceString: string = "";
-    let imageLink: string = "";
-    let count: number = 0;
     let productList: Array<productProps> = [];
-    while (count < 10) {
+    const r = context.query.rounds;
+    const rounds : number = (typeof r === 'string' && !isNaN(parseInt(r)) ? parseInt(r) : 10);
+    let count: number = 0;
+    let toGo = rounds;
+    while(toGo > 0) {
+        const promiseList : Array<Promise<[productProps, string|undefined]>>= [];
+        for(let i=0; i<toGo*1.3; i++){
+            const promiseA : Promise<productProps> = axios.get("https://randomazonbackend.appspot.com/product/").then(r=>{
+            const data : amazonData = r.data;
+            const imageLink : string = `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&MarketPlace=US&ASIN=
+            ${data.ASIN}&ServiceVersion=20070822&ID=AsinImage&WS=1&Format=SL500`;
+            const ret : productProps = {imageLink: imageLink,
+            price: parseFloat(data.price),
+            ASIN: data.ASIN,
+            category : data.category};
+            return ret;
+        });
+        const promiseB : Promise<string|undefined> = promiseA.then((r:productProps)=>{
+            if(isNaN(r.price) || r.category==='courses')
+                return undefined;
+            else
+                return axios.get(r.imageLink);
+        }).then(r=>{
+            if(r===undefined)
+                return undefined;
+            else
+                return r.headers['content-length'];
+        });
+        const p : [Promise<productProps>, Promise<string|undefined>] = [promiseA, promiseB]
+        promiseList.push(Promise.all(p));
+        }
+        const promiseData : Array<[productProps, string|undefined]> = await Promise.all(promiseList);
+        promiseData.forEach(function([a,b]) {
+            if(isNaN(a.price))
+                console.log(a.ASIN, 'Invalid Price');
+            else if(a.category === 'courses')
+                console.log(a.ASIN, "Is a Course");
+            else if (b == "0" || b === undefined)
+                console.log(a.ASIN, "Broken Image Link");
+            else if (parseInt(b) < 2000)
+                console.log(a.ASIN, "Possible no image");
+            else {
+                console.log(a.ASIN, "Success");
+                productList.push(a);
+                toGo--;
+            }
+        })
+    }
+    /*
+    while (count < rounds) {
+        let priceString: string = "";
+        let imageLink: string = "";
         let data: amazonData = (await axios.get("https://randomazonbackend.appspot.com/product/")).data;
         priceString = data['price'];
         if (priceString === "") {
@@ -110,5 +158,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             count++;
         }
     }
-    return { props: { productList } };
+    */
+    return { props: { productList, rounds } };
 }

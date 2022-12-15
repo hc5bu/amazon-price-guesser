@@ -33,8 +33,10 @@ export default function (props: productProps) {
             return 0;
     }
 
-    const handleChange = (event: React.ChangeEvent<HTMLElement>): void => {
-        const stringVal: string = (event.target as HTMLInputElement).value
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+        const stringVal: string = event.target.value;
+        const i : number = stringVal.indexOf('.');
+        const numDecimal = Math.min((i!==-1 ? stringVal.length-i-1: 0),2);
         let val: number = parseFloat(stringVal);
         if (isNaN(val)) {
             setEntry("");
@@ -44,7 +46,7 @@ export default function (props: productProps) {
         const ind = stringVal.indexOf('.');
         if (ind !== -1 && stringVal.length - ind > 3)
             val = Math.trunc(val * 100) / 100;
-        setEntry(val.toString());
+        setEntry(val.toFixed(numDecimal));
     }
     const renderResult = () => {
         const guess: number = parseFloat(entry);
@@ -53,7 +55,7 @@ export default function (props: productProps) {
             return (
                 <div className='answer'>
                     <div>Actual Price:&nbsp;
-                        <a href={"https://amazon.com/dp/" + props.ASIN} style={{ color: 'darkgreen' }}>
+                        <a href={"https://amazon.com/dp/" + props.ASIN} target="_blank" style={{ color: 'darkgreen' }}>
                             {`$${props.price.toFixed(2)}`}
                         </a>
                     </div>
@@ -67,7 +69,7 @@ export default function (props: productProps) {
             return (
                 <div className='answer'>
                     <div>Actual Price:&nbsp;
-                        <a href={"https://amazon.com/dp/" + props.ASIN} style={{ color: 'red' }}>
+                        <a href={"https://amazon.com/dp/" + props.ASIN} target="_blank" style={{ color: 'red' }}>
                             {`$${props.price.toFixed(2)}`}
                         </a>
                     </div>
