@@ -5,7 +5,6 @@ import Title from "../src/title";
 import Game from "../src/game";
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-//import { setConstantValue } from 'typescript';
 
 type amazonData = {
     "ASIN": string,
@@ -16,18 +15,20 @@ type amazonData = {
 
 type productProps = {
     'imageLink': string,
-    'price': number
+    'price': number,
+    'ASIN': string
 }
 
 export default function Practice(props: productProps): JSX.Element {
+    const [showAnswer, setShowAnswer] = useState(false);
     const router = useRouter();
     return (
         <div className='top'>
-            <Title scale={1}/>
+            <Title/>
             <Link href='/'>
                 <button className='backButton'>Back to Home</button>
             </Link>
-            <Game imageLink={props.imageLink} price={props.price}/>
+            <Game imageLink={props.imageLink} price={props.price} ASIN={props.ASIN} show={showAnswer} setShow={setShowAnswer}/>
             <button className='reloadButton' onClick={router.reload}>Try another</button>
         </div>
     )
@@ -65,11 +66,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         }
     }
     console.log(data.ASIN, "Success")
-    //console.log(data);
     return {
         props: {
             imageLink: imageLink,
-            price: parseFloat(priceString)
+            price: parseFloat(priceString),
+            ASIN: data.ASIN
         }
     }
 }

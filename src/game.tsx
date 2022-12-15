@@ -1,18 +1,38 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 
 type productProps = {
-    'imageLink': string,
-    'price': number
+    imageLink: string,
+    price: number,
+    ASIN: string,
+    show: boolean,
+    setShow: Function,
+    addScore?: Function
 }
-export default function(props: productProps){
+
+export default function (props: productProps) {
     const [entry, setEntry] = useState("");
-    const [show, setShow] = useState(false);
+
+    useEffect(() => {
+        if (props.show === false)
+            setEntry("");
+    }, [props.show]);
 
     const clickEnter = function (): void {
         if (entry !== "") {
-            setShow(true);
+            props.setShow(true);
+            if (props.addScore !== undefined)
+                props.addScore(calculatePoints());
         }
     }
+
+    const calculatePoints = (): number => {
+        const guess: number = parseFloat(entry);
+        if (guess <= props.price)
+            return Math.round(Math.pow(guess / props.price, 2) * 100);
+        else
+            return 0;
+    }
+
     const handleChange = (event: React.ChangeEvent<HTMLElement>): void => {
         const stringVal: string = (event.target as HTMLInputElement).value
         let val: number = parseFloat(stringVal);
@@ -28,13 +48,14 @@ export default function(props: productProps){
     }
     const renderResult = () => {
         const guess: number = parseFloat(entry);
-        let points: number;
+        const points: number = calculatePoints();
         if (guess <= props.price) {
-            points = Math.round(Math.pow(guess / props.price, 2) * 100);
             return (
                 <div className='answer'>
-                    <div>Actual Price:
-                        <span style={{ color: 'darkgreen' }}>{` $${props.price.toFixed(2)}`}</span>
+                    <div>Actual Price:&nbsp;
+                        <a href={"https://amazon.com/dp/" + props.ASIN} style={{ color: 'darkgreen' }}>
+                            {`$${props.price.toFixed(2)}`}
+                        </a>
                     </div>
                     <div>You got&nbsp;
                         <span style={{ color: (points === 0 ? 'red' : "") }}>{points}</span>
@@ -45,8 +66,10 @@ export default function(props: productProps){
         else {
             return (
                 <div className='answer'>
-                    <div>Actual Price:
-                        <span style={{ color: 'red' }}>{` $${props.price.toFixed(2)}`}</span>
+                    <div>Actual Price:&nbsp;
+                        <a href={"https://amazon.com/dp/" + props.ASIN} style={{ color: 'red' }}>
+                            {`$${props.price.toFixed(2)}`}
+                        </a>
                     </div>
                     <div>You went over!</div>
                 </div>
@@ -54,15 +77,15 @@ export default function(props: productProps){
         }
     }
 
-    return(
+    return (
         <div className='gameInterface'>
-                <img src={props.imageLink} />
-                <div>
-                    $<input type='number' className='priceInput' value={entry} disabled={show} required
-                        step='0.01' min='0' placeholder="Price?" onChange={handleChange} />
-                    <button className='enterPrice' disabled={show} onClick={clickEnter}>Enter</button>
-                </div>
-                {show && renderResult()}
+            <img src={props.imageLink} />
+            <div>
+                $<input type='number' className='priceInput' value={entry} disabled={props.show} required
+                    step='0.01' min='0' placeholder="Price?" onChange={handleChange} />
+                <button className='enterPrice' disabled={props.show} onClick={clickEnter}>Enter</button>
             </div>
+            {props.show && renderResult()}
+        </div>
     );
 }

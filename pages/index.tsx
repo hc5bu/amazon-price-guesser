@@ -8,7 +8,7 @@ export default function Home(){
             <div className='startButtons'>
                 <button disabled>Rules</button>
                 <Link href='/practice'><button>Practice</button></Link>
-                <button disabled>Play</button>
+                <Link href='/play'><button>Play!</button></Link>
             </div>
         </div>
     )

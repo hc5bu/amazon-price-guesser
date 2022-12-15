@@ -42,8 +42,34 @@ h1 {
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
+.roundInfo { 
+  display: flex;
+  width: 300px;
+  align-items: center;
+}
+
+.score {
+  font-size: 15px;
+  justify-self: flex-start;
+  text-align: center;
+}
+
+.backWrapper{
+  justify-self: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
 .backButton {
   font-size: 15px;
+}
+
+.roundNum {
+  font-size: 15px;
+  justify-self: flex-end;
+  text-align: center
 }
 
 .gameInterface img {
@@ -65,7 +91,17 @@ h1 {
   margin-top:5px;
 }
 
-.reloadButton{
+.reloadButton, .nextButton{
   font-size:20px;
   margin-top:5px;
+}
+
+#playAgain {
+  font-size: 30px;
+}
+
+.finalScore {
+  font-size: 25px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
